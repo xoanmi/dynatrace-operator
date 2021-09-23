@@ -159,9 +159,9 @@ func (r *ReconcileWebhookCertificates) updateWebhookConfigurations(ctx context.C
 		}
 	}
 
-	if err := r.updateCRDConfiguration(ctx, secret); err != nil {
-		return err
-	}
+	// if err := r.updateCRDConfiguration(ctx, secret); err != nil {
+	// 	return err
+	// }
 	if err := r.client.Update(ctx, mutatingWebhookConfiguration); err != nil {
 		return err
 	}
