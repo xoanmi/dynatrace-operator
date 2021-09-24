@@ -14,10 +14,8 @@ import (
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	apiv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -259,29 +257,29 @@ func (r *ReconcileWebhookCertificates) updateConfiguration(
 	return nil
 }
 
-func (r *ReconcileWebhookCertificates) updateCRDConfiguration(ctx context.Context, secret *corev1.Secret) error {
-
-	var crd apiv1.CustomResourceDefinition
-	if err := r.client.Get(ctx, types.NamespacedName{Name: crdName}, &crd); err != nil {
-		return err
-	}
-
-	data, hasData := secret.Data[RootCert]
-	if !hasData {
-		return errors.New(errorCertificatesSecretEmpty)
-	}
-
-	if oldData, hasOldData := secret.Data[RootCertOld]; hasOldData {
-		data = append(data, oldData...)
-	}
-
-	if crd.Spec.Conversion.Webhook.ClientConfig != nil {
-		crd.Spec.Conversion.Webhook.ClientConfig.CABundle = data
-	}
-
-	// update crd
-	if err := r.client.Update(ctx, &crd); err != nil {
-		return err
-	}
-	return nil
-}
+//func (r *ReconcileWebhookCertificates) updateCRDConfiguration(ctx context.Context, secret *corev1.Secret) error {
+//
+//	var crd apiv1.CustomResourceDefinition
+//	if err := r.client.Get(ctx, types.NamespacedName{Name: crdName}, &crd); err != nil {
+//		return err
+//	}
+//
+//	data, hasData := secret.Data[RootCert]
+//	if !hasData {
+//		return errors.New(errorCertificatesSecretEmpty)
+//	}
+//
+//	if oldData, hasOldData := secret.Data[RootCertOld]; hasOldData {
+//		data = append(data, oldData...)
+//	}
+//
+//	if crd.Spec.Conversion.Webhook.ClientConfig != nil {
+//		crd.Spec.Conversion.Webhook.ClientConfig.CABundle = data
+//	}
+//
+//	// update crd
+//	if err := r.client.Update(ctx, &crd); err != nil {
+//		return err
+//	}
+//	return nil
+//}
