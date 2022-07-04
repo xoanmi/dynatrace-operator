@@ -1,6 +1,8 @@
 package csi
 
 import (
+	"time"
+
 	cmdManager "github.com/Dynatrace/dynatrace-operator/src/cmd/manager"
 	"github.com/Dynatrace/dynatrace-operator/src/scheme"
 	"github.com/pkg/errors"
@@ -17,6 +19,8 @@ const (
 	livenessEndpointName = "/livez"
 	livezEndpointName    = "livez"
 )
+
+var gracefulShutdownTimeout = time.Second * 300
 
 type csiDriverManagerProvider struct {
 	probeAddress string
@@ -60,5 +64,6 @@ func (provider csiDriverManagerProvider) createOptions(namespace string) ctrl.Op
 		Port:                   port,
 		HealthProbeBindAddress: provider.probeAddress,
 		LivenessEndpointName:   livenessEndpointName,
+		GracefulShutdownTimeout: &gracefulShutdownTimeout,
 	}
 }

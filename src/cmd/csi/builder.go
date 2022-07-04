@@ -1,6 +1,7 @@
 package csi
 
 import (
+	"context"
 	"path/filepath"
 
 	"github.com/Dynatrace/dynatrace-operator/src/cmd/config"
@@ -14,7 +15,6 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"golang.org/x/sys/unix"
-	ctrl "sigs.k8s.io/controller-runtime"
 )
 
 const use = "csi-driver"
@@ -137,7 +137,8 @@ func (builder CommandBuilder) buildRun() func(*cobra.Command, []string) error {
 			return err
 		}
 
-		err = csidriver.NewServer(csiManager.GetClient(), builder.getCsiOptions(), access).SetupWithManager(csiManager)
+		ctx, cancel := context.WithCancel(context.Background())
+		err = csidriver.NewServer(csiManager.GetClient(), builder.getCsiOptions(), access, cancel).SetupWithManager(csiManager)
 		if err != nil {
 			return err
 		}
@@ -152,9 +153,7 @@ func (builder CommandBuilder) buildRun() func(*cobra.Command, []string) error {
 			return err
 		}
 
-		signalHandler := ctrl.SetupSignalHandler()
-		err = csiManager.Start(signalHandler)
-		return errors.WithStack(err)
+		return csiManager.Start(ctx)
 	}
 }
 

@@ -21,8 +21,11 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"os/exec"
+	"os/signal"
 	"runtime"
 	"strings"
+	"syscall"
 	"time"
 
 	dtcsi "github.com/Dynatrace/dynatrace-operator/src/controllers/csi"
@@ -48,6 +51,7 @@ type CSIDriverServer struct {
 	mounter mount.Interface
 	db      metadata.Access
 	path    metadata.PathResolver
+	ctxCancel context.CancelFunc
 
 	publishers map[string]csivolumes.Publisher
 }
@@ -55,7 +59,7 @@ type CSIDriverServer struct {
 var _ csi.IdentityServer = &CSIDriverServer{}
 var _ csi.NodeServer = &CSIDriverServer{}
 
-func NewServer(client client.Client, opts dtcsi.CSIOptions, db metadata.Access) *CSIDriverServer {
+func NewServer(client client.Client, opts dtcsi.CSIOptions, db metadata.Access, ctxCancel context.CancelFunc) *CSIDriverServer {
 	return &CSIDriverServer{
 		client:  client,
 		opts:    opts,
@@ -63,6 +67,7 @@ func NewServer(client client.Client, opts dtcsi.CSIOptions, db metadata.Access) 
 		mounter: mount.New(""),
 		db:      db,
 		path:    metadata.PathResolver{RootDir: opts.RootDir},
+		ctxCancel: ctxCancel,
 	}
 }
 
@@ -71,7 +76,9 @@ func (svr *CSIDriverServer) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 func (svr *CSIDriverServer) Start(ctx context.Context) error {
+	defer svr.ctxCancel()
 	defer metadata.LogAccessOverview(log, svr.db)
+	go exec.CommandContext(ctx, "csi-node-driver-registrar", "--csi-address=/csi/csi.sock", "--kubelet-registration-path=/var/lib/kubelet/plugins/csi.oneagent.dynatrace.com/csi.sock").Run()
 	proto, addr, err := parseEndpoint(svr.opts.Endpoint)
 	if err != nil {
 		return fmt.Errorf("failed to parse endpoint '%s': %w", svr.opts.Endpoint, err)
@@ -102,9 +109,6 @@ func (svr *CSIDriverServer) Start(ctx context.Context) error {
 		for !done {
 			select {
 			case <-ctx.Done():
-				log.Info("stopping server")
-				server.GracefulStop()
-				log.Info("stopped server")
 				done = true
 			case <-ticker.C:
 				var m runtime.MemStats
@@ -118,9 +122,54 @@ func (svr *CSIDriverServer) Start(ctx context.Context) error {
 	csi.RegisterNodeServer(server, svr)
 
 	log.Info("listening for connections on address", "address", listener.Addr())
+	errorChan := make(chan error, 1)
+	go func() {
+		err = server.Serve(listener)
+		if err != nil {
+			errorChan <- err
+		}
+	}()
+	time.Sleep(time.Second * 5)
+	terminationChan := make(chan os.Signal, 1)
+	signal.Reset(syscall.SIGTERM, syscall.SIGINT)
+	signal.Notify(terminationChan, syscall.SIGTERM, syscall.SIGINT)
+	select {
+	case err := <-errorChan:
+		return err
+	case <-terminationChan:
+		defer server.GracefulStop()
+		return blockUntilVolumesPresent(svr.db)
+	case <-ctx.Done():
+		defer server.GracefulStop()
+		return blockUntilVolumesPresent(svr.db)
+	}
+}
 
-	_ = server.Serve(listener)
+func blockUntilVolumesPresent(access metadata.Access) error {
+	log.Info("starting graceful shutdown")
+	volumesPresent := true
+	for volumesPresent {
+		volumes, err := access.GetAllVolumes()
+		if err != nil {
+			return err
+		}
+		osVolumes, err := access.GetAllOsAgentVolumes()
+		if err != nil {
+			return err
+		}
 
+		presentVolumes := len(volumes)
+		for _, volume := range osVolumes {
+			if volume.Mounted {
+				presentVolumes++
+			}
+		}
+		volumesPresent =  presentVolumes > 0
+		if volumesPresent{
+			log.Info("mounted volumes still present, shutdown can only happen if all volumes are unmounted", "len(volumes)", presentVolumes)
+		}
+		time.Sleep(time.Second * 10)
+	}
 	return nil
 }
 
