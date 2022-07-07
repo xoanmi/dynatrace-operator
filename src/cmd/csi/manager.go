@@ -54,7 +54,6 @@ func (provider csiDriverManagerProvider) addHealthzCheck(mgr manager.Manager) er
 
 func (provider csiDriverManagerProvider) createOptions(namespace string) ctrl.Options {
 	return ctrl.Options{
-		Namespace:              namespace,
 		Scheme:                 scheme.Scheme,
 		MetricsBindAddress:     metricsBindAddress,
 		Port:                   port,

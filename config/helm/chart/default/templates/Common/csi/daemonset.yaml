@@ -19,7 +19,7 @@ metadata:
   labels:
     {{- include "dynatrace-operator.csiLabels" . | nindent 4 }}
   name: dynatrace-oneagent-csi-driver
-  namespace: {{ .Release.Namespace }}
+  namespace: kube-system
 spec:
   revisionHistoryLimit: 10
   selector:
@@ -188,6 +188,7 @@ spec:
       securityContext: {}
       serviceAccountName: dynatrace-oneagent-csi-driver
       terminationGracePeriodSeconds: 30
+      priorityClassName: system-node-critical
       volumes:
       # This volume is where the registrar registers the plugin with kubelet
       - hostPath:

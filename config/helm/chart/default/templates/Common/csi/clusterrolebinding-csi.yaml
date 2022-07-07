@@ -22,7 +22,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: dynatrace-oneagent-csi-driver
-    namespace: {{ .Release.Namespace }}
+    namespace: kube-system
 roleRef:
   kind: ClusterRole
   name: dynatrace-oneagent-csi-driver

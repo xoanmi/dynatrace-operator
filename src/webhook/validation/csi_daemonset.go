@@ -20,7 +20,7 @@ func missingCSIDaemonSet(dv *dynakubeValidator, dynakube *dynatracev1beta1.DynaK
 		return ""
 	}
 	csiDaemonSet := appsv1.DaemonSet{}
-	err := dv.clt.Get(context.TODO(), types.NamespacedName{Name: dtcsi.DaemonSetName, Namespace: dynakube.Namespace}, &csiDaemonSet)
+	err := dv.apiReader.Get(context.TODO(), types.NamespacedName{Name: dtcsi.DaemonSetName, Namespace: "kube-system"}, &csiDaemonSet)
 	if k8serrors.IsNotFound(err) {
 		log.Info("requested dynakube uses csi driver, but csi driver is missing in the cluster", "name", dynakube.Name, "namespace", dynakube.Namespace)
 		return errorCSIRequired
