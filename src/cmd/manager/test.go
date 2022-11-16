@@ -16,6 +16,7 @@ type TestManager struct {
 	manager.Manager
 }
 
+// cluster.Cluster portion of manager.Manager interface
 func (mgr *TestManager) GetClient() client.Client {
 	return struct{ client.Client }{}
 }
@@ -24,20 +25,21 @@ func (mgr *TestManager) GetAPIReader() client.Reader {
 	return struct{ client.Reader }{}
 }
 
-func (mgr *TestManager) GetControllerOptions() v1alpha1.ControllerConfigurationSpec {
-	return v1alpha1.ControllerConfigurationSpec{}
-}
-
 func (mgr *TestManager) GetScheme() *runtime.Scheme {
 	return scheme.Scheme
 }
 
-func (mgr *TestManager) GetLogger() logr.Logger {
-	return logger.Factory.GetLogger("test-manager")
-}
-
 func (mgr *TestManager) SetFields(interface{}) error {
 	return nil
+}
+
+// manager.Manager interface
+func (mgr *TestManager) GetControllerOptions() v1alpha1.ControllerConfigurationSpec {
+	return v1alpha1.ControllerConfigurationSpec{}
+}
+
+func (mgr *TestManager) GetLogger() logr.Logger {
+	return logger.Factory.GetLogger("test-manager")
 }
 
 func (mgr *TestManager) Add(manager.Runnable) error {
