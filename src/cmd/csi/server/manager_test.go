@@ -3,7 +3,7 @@ package server
 import (
 	"testing"
 
-	cmdManager "github.com/Dynatrace/dynatrace-operator/src/cmd/manager"
+	mocks "github.com/Dynatrace/dynatrace-operator/mocks/cmd/manager"
 	"github.com/Dynatrace/dynatrace-operator/src/scheme"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -35,7 +35,7 @@ func TestCsiDriverManagerProvider(t *testing.T) {
 		const addHealthzCheck = "AddHealthzCheck"
 
 		operatorMgrProvider := csiDriverManagerProvider{}
-		mockMgr := &cmdManager.MockManager{}
+		mockMgr := &mocks.Manager{}
 		mockMgr.On(addHealthzCheck, livezEndpointName, mock.AnythingOfType("healthz.Checker")).Return(nil)
 
 		err := operatorMgrProvider.addHealthzCheck(mockMgr)
@@ -44,7 +44,7 @@ func TestCsiDriverManagerProvider(t *testing.T) {
 		mockMgr.AssertCalled(t, addHealthzCheck, livezEndpointName, mock.AnythingOfType("healthz.Checker"))
 
 		expectedError := errors.New("healthz error")
-		mockMgr = &cmdManager.MockManager{}
+		mockMgr = &mocks.Manager{}
 		mockMgr.On(addHealthzCheck, mock.Anything, mock.Anything).Return(expectedError)
 
 		err = operatorMgrProvider.addHealthzCheck(mockMgr)

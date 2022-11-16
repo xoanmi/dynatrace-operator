@@ -8,3 +8,7 @@ import (
 type Provider interface {
 	CreateManager(namespace string, config *rest.Config) (manager.Manager, error)
 }
+
+type Manager interface {
+	manager.Manager
+}

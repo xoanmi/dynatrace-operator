@@ -3,6 +3,7 @@ package provisioner
 import (
 	"testing"
 
+	mocks "github.com/Dynatrace/dynatrace-operator/mocks/cmd/manager"
 	"github.com/Dynatrace/dynatrace-operator/src/cmd/config"
 	cmdManager "github.com/Dynatrace/dynatrace-operator/src/cmd/manager"
 	dtcsi "github.com/Dynatrace/dynatrace-operator/src/controllers/csi"
@@ -17,7 +18,7 @@ func TestCsiCommand(t *testing.T) {
 	configProvider := &config.MockProvider{}
 	configProvider.On("GetConfig").Return(&rest.Config{}, nil)
 
-	cmdMgr := &cmdManager.MockManager{}
+	cmdMgr := &mocks.Manager{}
 
 	managerProvider := &cmdManager.MockProvider{}
 	managerProvider.On("CreateManager", mock.Anything, mock.Anything).Return(cmdMgr, nil)

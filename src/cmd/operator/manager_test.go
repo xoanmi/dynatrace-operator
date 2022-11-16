@@ -3,6 +3,7 @@ package operator
 import (
 	"testing"
 
+	mocks "github.com/Dynatrace/dynatrace-operator/mocks/cmd/manager"
 	cmdManager "github.com/Dynatrace/dynatrace-operator/src/cmd/manager"
 	"github.com/Dynatrace/dynatrace-operator/src/scheme"
 	"github.com/pkg/errors"
@@ -36,7 +37,7 @@ func TestOperatorManagerProvider(t *testing.T) {
 		const addHealthzCheck = "AddHealthzCheck"
 
 		operatorMgrProvider := operatorManagerProvider{}
-		mockMgr := &cmdManager.MockManager{}
+		mockMgr := &mocks.Manager{}
 		mockMgr.On(addHealthzCheck, livezEndpointName, mock.AnythingOfType("healthz.Checker")).Return(nil)
 
 		err := operatorMgrProvider.addHealthzCheck(mockMgr)
@@ -45,7 +46,7 @@ func TestOperatorManagerProvider(t *testing.T) {
 		mockMgr.AssertCalled(t, addHealthzCheck, livezEndpointName, mock.AnythingOfType("healthz.Checker"))
 
 		expectedError := errors.New("healthz error")
-		mockMgr = &cmdManager.MockManager{}
+		mockMgr = &mocks.Manager{}
 		mockMgr.On(addHealthzCheck, mock.Anything, mock.Anything).Return(expectedError)
 
 		err = operatorMgrProvider.addHealthzCheck(mockMgr)
@@ -57,7 +58,7 @@ func TestOperatorManagerProvider(t *testing.T) {
 		const addReadyzCheck = "AddReadyzCheck"
 
 		operatorMgrProvider := operatorManagerProvider{}
-		mockMgr := &cmdManager.MockManager{}
+		mockMgr := &mocks.Manager{}
 		mockMgr.On(addReadyzCheck, readyzEndpointName, mock.AnythingOfType("healthz.Checker")).Return(nil)
 
 		err := operatorMgrProvider.addReadyzCheck(mockMgr)
@@ -66,7 +67,7 @@ func TestOperatorManagerProvider(t *testing.T) {
 		mockMgr.AssertCalled(t, addReadyzCheck, readyzEndpointName, mock.AnythingOfType("healthz.Checker"))
 
 		expectedError := errors.New("readyz error")
-		mockMgr = &cmdManager.MockManager{}
+		mockMgr = &mocks.Manager{}
 		mockMgr.On(addReadyzCheck, mock.Anything, mock.Anything).Return(expectedError)
 
 		err = operatorMgrProvider.addReadyzCheck(mockMgr)

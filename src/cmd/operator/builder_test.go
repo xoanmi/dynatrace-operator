@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	mocks "github.com/Dynatrace/dynatrace-operator/mocks/cmd/manager"
 	"github.com/Dynatrace/dynatrace-operator/src/cmd/config"
 	cmdManager "github.com/Dynatrace/dynatrace-operator/src/cmd/manager"
 	"github.com/pkg/errors"
@@ -154,7 +155,7 @@ func TestOperatorCommand(t *testing.T) {
 		mockCfgProvider := &config.MockProvider{}
 		mockCfgProvider.On("GetConfig").Return(&rest.Config{}, nil)
 
-		mockMgr := &cmdManager.MockManager{}
+		mockMgr := &mocks.Manager{}
 		mockMgr.On("Start", mock.Anything).Return(nil)
 
 		mockMgrProvider := &cmdManager.MockProvider{}
@@ -181,7 +182,7 @@ func TestOperatorCommand(t *testing.T) {
 		mockCfgProvider := &config.MockProvider{}
 		mockCfgProvider.On("GetConfig").Return(&rest.Config{}, nil)
 
-		bootstrapMockMgr := &cmdManager.MockManager{}
+		bootstrapMockMgr := &mocks.Manager{}
 		bootstrapMockMgr.On("Start", mock.Anything).Return(nil)
 
 		mockBootstrapMgrProvider := &cmdManager.MockProvider{}
@@ -189,7 +190,7 @@ func TestOperatorCommand(t *testing.T) {
 			On("CreateManager", mock.AnythingOfType("string"), &rest.Config{}).
 			Return(bootstrapMockMgr, nil)
 
-		operatorMockMgr := &cmdManager.MockManager{}
+		operatorMockMgr := &mocks.Manager{}
 		operatorMockMgr.On("Start", mock.Anything).Return(nil)
 
 		mockOperatorMgrProvider := &cmdManager.MockProvider{}

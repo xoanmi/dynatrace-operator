@@ -3,6 +3,7 @@ package webhook
 import (
 	"testing"
 
+	mocks "github.com/Dynatrace/dynatrace-operator/mocks/cmd/manager"
 	cmdManager "github.com/Dynatrace/dynatrace-operator/src/cmd/manager"
 	"github.com/Dynatrace/dynatrace-operator/src/scheme"
 	"github.com/stretchr/testify/assert"
@@ -34,7 +35,7 @@ func TestCreateOptions(t *testing.T) {
 		provider := NewWebhookManagerProvider("certs-dir", "key-file", "cert-file")
 		expectedWebhookServer := &webhook.Server{}
 
-		mgr := &cmdManager.MockManager{}
+		mgr := &mocks.Manager{}
 		mgr.On("GetWebhookServer").Return(expectedWebhookServer)
 
 		mgrWithWebhookServer := provider.setupWebhookServer(mgr)

@@ -40,3 +40,8 @@ go/build/manager/amd64: export GOOS=linux
 go/build/manager/amd64: export GOARCH=amd64
 go/build/manager/amd64: manifests/crd7generate go/fmt go/vet
 	go build -o bin/manager-amd64 ./src/cmd/operator/
+
+
+go/mock:
+	docker pull vektra/mockery
+	docker run -v "`pwd`":/operator -w /operator vektra/mockery --dir ./src --output ./mocks --keeptree --with-expecter --all
