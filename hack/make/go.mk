@@ -44,4 +44,5 @@ go/build/manager/amd64: manifests/crd7generate go/fmt go/vet
 
 go/mock:
 	docker pull vektra/mockery
-	docker run -v "`pwd`":/operator -w /operator vektra/mockery --dir ./src --output ./mocks --keeptree --with-expecter --all
+#	docker run -v "`pwd`":/operator -w /operator vektra/mockery --dir ./src --output ./mocks --keeptree --with-expecter --all
+	docker run -v "`pwd`":/operator -w /operator vektra/mockery --dir ./src --output ./mocks --inpackage --with-expecter --name manager.Provider
