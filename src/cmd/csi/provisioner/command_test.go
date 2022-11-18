@@ -1,11 +1,11 @@
 package provisioner
 
 import (
+	"github.com/Dynatrace/dynatrace-operator/src/cmd/manager/mocks"
 	"testing"
 
 	mocks "github.com/Dynatrace/dynatrace-operator/mocks/cmd/manager"
 	"github.com/Dynatrace/dynatrace-operator/src/cmd/config"
-	cmdManager "github.com/Dynatrace/dynatrace-operator/src/cmd/manager"
 	dtcsi "github.com/Dynatrace/dynatrace-operator/src/controllers/csi"
 	"github.com/Dynatrace/dynatrace-operator/src/logger"
 	"github.com/spf13/afero"
@@ -20,7 +20,7 @@ func TestCsiCommand(t *testing.T) {
 
 	cmdMgr := &mocks.Manager{}
 
-	managerProvider := &cmdManager.MockProvider{}
+	managerProvider := &mocks.Provider{}
 	managerProvider.On("CreateManager", mock.Anything, mock.Anything).Return(cmdMgr, nil)
 
 	memFs := afero.NewMemMapFs()

@@ -3,6 +3,7 @@ package dynakube
 import (
 	"context"
 	"fmt"
+	"github.com/Dynatrace/dynatrace-operator/src/dtclient/mocks"
 	"testing"
 
 	dynatracev1beta1 "github.com/Dynatrace/dynatrace-operator/src/api/v1beta1"
@@ -600,8 +601,8 @@ func TestReconcile_ActiveGateMultiCapability(t *testing.T) {
 	assert.True(t, k8serrors.IsNotFound(err))
 }
 
-func createDTMockClient(paasTokenScopes, apiTokenScopes dtclient.TokenScopes) *dtclient.MockDynatraceClient {
-	mockClient := &dtclient.MockDynatraceClient{}
+func createDTMockClient(paasTokenScopes, apiTokenScopes dtclient.TokenScopes) *mocks.Client {
+	mockClient := &mocks.Client{}
 
 	mockClient.On("GetCommunicationHostForClient").Return(dtclient.CommunicationHost{
 		Protocol: testProtocol,
@@ -948,7 +949,7 @@ func TestTokenConditions(t *testing.T) {
 				dtclient.DynatraceApiToken: []byte(testAPIToken),
 			},
 		})
-		mockClient := &dtclient.MockDynatraceClient{}
+		mockClient := &mocks.Client{}
 		mockDtcBuilder := &dynatraceclient.StubBuilder{
 			DynatraceClient: mockClient,
 		}

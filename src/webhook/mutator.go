@@ -7,6 +7,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
+//go:generate mockery --config ../../mockery.yaml --name PodMutator
 type PodMutator interface {
 	// Enabled returns true if the mutator needs to be executed for the given request.
 	// This is used to filter out mutators that are not needed for the given request.

@@ -20,6 +20,8 @@ const (
 )
 
 // Client is the interface for the Dynatrace REST API client.
+//
+//go:generate mockery --with-expecter --case snake --name=Client
 type Client interface {
 	// GetLatestAgentVersion gets the latest agent version for the given OS and installer type.
 	// Returns the version as received from the server on success.

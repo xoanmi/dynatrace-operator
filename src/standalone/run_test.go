@@ -2,6 +2,7 @@ package standalone
 
 import (
 	"fmt"
+	"github.com/Dynatrace/dynatrace-operator/src/dtclient/mocks"
 	"path/filepath"
 	"testing"
 
@@ -120,7 +121,7 @@ func TestSetHostTenant(t *testing.T) {
 func TestInstallOneAgent(t *testing.T) {
 	runner := createMockedRunner(t)
 	t.Run(`happy install`, func(t *testing.T) {
-		runner.dtclient.(*dtclient.MockDynatraceClient).
+		runner.dtclient.(*mocks.Client).
 			On("GetProcessModuleConfig", uint(0)).
 			Return(&testProcessModuleConfig, nil)
 		runner.installer.(*installer.InstallerMock).
@@ -146,7 +147,7 @@ func TestInstallOneAgent(t *testing.T) {
 	})
 	t.Run(`sad install -> ruxitagent update fail`, func(t *testing.T) {
 		runner := createMockedRunner(t)
-		runner.dtclient.(*dtclient.MockDynatraceClient).
+		runner.dtclient.(*mocks.Client).
 			On("GetProcessModuleConfig", uint(0)).
 			Return(&testProcessModuleConfig, nil)
 		runner.installer.(*installer.InstallerMock).
@@ -162,7 +163,7 @@ func TestInstallOneAgent(t *testing.T) {
 	})
 	t.Run(`sad install -> ruxitagent endpoint fail`, func(t *testing.T) {
 		runner := createMockedRunner(t)
-		runner.dtclient.(*dtclient.MockDynatraceClient).
+		runner.dtclient.(*mocks.Client).
 			On("GetProcessModuleConfig", uint(0)).
 			Return(&dtclient.ProcessModuleConfig{}, fmt.Errorf("BOOM"))
 		runner.installer.(*installer.InstallerMock).
@@ -182,7 +183,7 @@ func TestRun(t *testing.T) {
 	runner.config.HasHost = false
 	runner.env.OneAgentInjected = true
 	runner.env.DataIngestInjected = true
-	runner.dtclient.(*dtclient.MockDynatraceClient).
+	runner.dtclient.(*mocks.Client).
 		On("GetProcessModuleConfig", uint(0)).
 		Return(&testProcessModuleConfig, nil)
 	runner.installer.(*installer.InstallerMock).
@@ -360,7 +361,7 @@ func creatTestRunner(t *testing.T) *Runner {
 func createMockedRunner(t *testing.T) *Runner {
 	runner := creatTestRunner(t)
 	runner.installer = &installer.InstallerMock{}
-	runner.dtclient = &dtclient.MockDynatraceClient{}
+	runner.dtclient = &mocks.Client{}
 	return runner
 }
 

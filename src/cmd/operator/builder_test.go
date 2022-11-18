@@ -2,7 +2,11 @@ package operator
 
 import (
 	"context"
+<<<<<<< Updated upstream
 	configmocks "github.com/Dynatrace/dynatrace-operator/mocks/cmd/config"
+=======
+	"github.com/Dynatrace/dynatrace-operator/src/cmd/manager/mocks"
+>>>>>>> Stashed changes
 	"testing"
 
 	managermocks "github.com/Dynatrace/dynatrace-operator/mocks/cmd/manager"
@@ -43,13 +47,21 @@ func TestCommandBuilder(t *testing.T) {
 		assert.Equal(t, expectedProvider, builder.configProvider)
 	})
 	t.Run("set operator manager provider", func(t *testing.T) {
+<<<<<<< Updated upstream
 		expectedProvider := &managermocks.Provider{}
+=======
+		expectedProvider := &mocks.Provider{}
+>>>>>>> Stashed changes
 		builder := NewOperatorCommandBuilder().setOperatorManagerProvider(expectedProvider)
 
 		assert.Equal(t, expectedProvider, builder.operatorManagerProvider)
 	})
 	t.Run("set bootstrap manager provider", func(t *testing.T) {
+<<<<<<< Updated upstream
 		expectedProvider := &managermocks.Provider{}
+=======
+		expectedProvider := &mocks.Provider{}
+>>>>>>> Stashed changes
 		builder := NewOperatorCommandBuilder().setBootstrapManagerProvider(expectedProvider)
 
 		assert.Equal(t, expectedProvider, builder.bootstrapManagerProvider)
@@ -80,10 +92,14 @@ func TestOperatorCommand(t *testing.T) {
 		mockCfgProvider := &configmocks.Provider{}
 		mockCfgProvider.On("GetConfig").Return(&rest.Config{}, nil)
 
+<<<<<<< Updated upstream
 		mockMgrProvider := &managermocks.Provider{}
+=======
+		mockMgrProvider := &mocks.Provider{}
+>>>>>>> Stashed changes
 		mockMgrProvider.
 			On("CreateManager", mock.AnythingOfType("string"), &rest.Config{}).
-			Return(&cmdManager.TestManager{}, nil)
+			Return(&cmdManager.ManagerStub{}, nil)
 
 		builder := NewOperatorCommandBuilder().
 			SetNamespace(testNamespace).
@@ -111,10 +127,14 @@ func TestOperatorCommand(t *testing.T) {
 		mockCfgProvider := &configmocks.Provider{}
 		mockCfgProvider.On("GetConfig").Return(&rest.Config{}, nil)
 
+<<<<<<< Updated upstream
 		mockMgrProvider := &managermocks.Provider{}
+=======
+		mockMgrProvider := &mocks.Provider{}
+>>>>>>> Stashed changes
 		mockMgrProvider.
 			On("CreateManager", mock.AnythingOfType("string"), &rest.Config{}).
-			Return(&cmdManager.TestManager{}, nil)
+			Return(&cmdManager.ManagerStub{}, nil)
 
 		builder := NewOperatorCommandBuilder().
 			SetNamespace(testNamespace).
@@ -134,10 +154,14 @@ func TestOperatorCommand(t *testing.T) {
 		mockCfgProvider := &configmocks.Provider{}
 		mockCfgProvider.On("GetConfig").Return(&rest.Config{}, nil)
 
+<<<<<<< Updated upstream
 		mockMgrProvider := &managermocks.Provider{}
+=======
+		mockMgrProvider := &mocks.Provider{}
+>>>>>>> Stashed changes
 		mockMgrProvider.
 			On("CreateManager", mock.AnythingOfType("string"), &rest.Config{}).
-			Return(&cmdManager.TestManager{}, errors.New("create manager error"))
+			Return(&cmdManager.ManagerStub{}, errors.New("create manager error"))
 
 		builder := NewOperatorCommandBuilder().
 			SetNamespace(testNamespace).
@@ -155,10 +179,17 @@ func TestOperatorCommand(t *testing.T) {
 		mockCfgProvider := &configmocks.Provider{}
 		mockCfgProvider.On("GetConfig").Return(&rest.Config{}, nil)
 
+<<<<<<< Updated upstream
 		mockMgr := &managermocks.Manager{}
 		mockMgr.On("Start", mock.Anything).Return(nil)
 
 		mockMgrProvider := &managermocks.Provider{}
+=======
+		mockMgr := &mocks.Manager{}
+		mockMgr.On("Start", mock.Anything).Return(nil)
+
+		mockMgrProvider := &mocks.Provider{}
+>>>>>>> Stashed changes
 		mockMgrProvider.
 			On("CreateManager", mock.AnythingOfType("string"), &rest.Config{}).
 			Return(mockMgr, nil)
@@ -182,18 +213,32 @@ func TestOperatorCommand(t *testing.T) {
 		mockCfgProvider := &configmocks.Provider{}
 		mockCfgProvider.On("GetConfig").Return(&rest.Config{}, nil)
 
+<<<<<<< Updated upstream
 		bootstrapMockMgr := &managermocks.Manager{}
 		bootstrapMockMgr.On("Start", mock.Anything).Return(nil)
 
 		mockBootstrapMgrProvider := &managermocks.Provider{}
+=======
+		bootstrapMockMgr := &mocks.Manager{}
+		bootstrapMockMgr.On("Start", mock.Anything).Return(nil)
+
+		mockBootstrapMgrProvider := &mocks.Provider{}
+>>>>>>> Stashed changes
 		mockBootstrapMgrProvider.
 			On("CreateManager", mock.AnythingOfType("string"), &rest.Config{}).
 			Return(bootstrapMockMgr, nil)
 
+<<<<<<< Updated upstream
 		operatorMockMgr := &managermocks.Manager{}
 		operatorMockMgr.On("Start", mock.Anything).Return(nil)
 
 		mockOperatorMgrProvider := &managermocks.Provider{}
+=======
+		operatorMockMgr := &mocks.Manager{}
+		operatorMockMgr.On("Start", mock.Anything).Return(nil)
+
+		mockOperatorMgrProvider := &mocks.Provider{}
+>>>>>>> Stashed changes
 		mockOperatorMgrProvider.
 			On("CreateManager", mock.AnythingOfType("string"), &rest.Config{}).
 			Return(operatorMockMgr, nil)

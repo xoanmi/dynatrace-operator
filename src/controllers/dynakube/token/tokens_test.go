@@ -1,6 +1,7 @@
 package token
 
 import (
+	"github.com/Dynatrace/dynatrace-operator/src/dtclient/mocks"
 	"testing"
 
 	dynatracev1beta1 "github.com/Dynatrace/dynatrace-operator/src/api/v1beta1"
@@ -125,7 +126,7 @@ func testVerifyTokenScopes(t *testing.T) {
 			RequiredScopes: []string{"a", "c"},
 		},
 	}
-	fakeDynatraceClient := &dtclient.MockDynatraceClient{}
+	fakeDynatraceClient := &mocks.Client{}
 
 	fakeDynatraceClient.
 		On("GetTokenScopes", "empty-scopes").

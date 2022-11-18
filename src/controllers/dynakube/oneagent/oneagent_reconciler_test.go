@@ -2,6 +2,7 @@ package oneagent
 
 import (
 	"context"
+	"github.com/Dynatrace/dynatrace-operator/src/dtclient/mocks"
 	"testing"
 
 	dynatracev1beta1 "github.com/Dynatrace/dynatrace-operator/src/api/v1beta1"
@@ -74,7 +75,7 @@ func TestReconcileOneAgent_ReconcileOnEmptyEnvironmentAndDNSPolicy(t *testing.T)
 		NewSecret(dkName, namespace, map[string]string{dtclient.DynatracePaasToken: "42", dtclient.DynatraceApiToken: "84"}),
 		sampleKubeSystemNS)
 
-	dtClient := &dtclient.MockDynatraceClient{}
+	dtClient := &mocks.Client{}
 
 	reconciler := &OneAgentReconciler{
 		client:    fakeClient,
@@ -156,7 +157,7 @@ func TestReconcile_InstancesSet(t *testing.T) {
 	c := fake.NewClient(
 		NewSecret(name, namespace, map[string]string{dtclient.DynatracePaasToken: "42", dtclient.DynatraceApiToken: "84"}),
 		sampleKubeSystemNS)
-	dtcMock := &dtclient.MockDynatraceClient{}
+	dtcMock := &mocks.Client{}
 	componentVersion := "1.187"
 	oldComponentVersion := "1.186"
 	hostIP := "1.2.3.4"

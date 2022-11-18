@@ -1,6 +1,7 @@
 package apimonitoring
 
 import (
+	"github.com/Dynatrace/dynatrace-operator/src/dtclient/mocks"
 	"testing"
 
 	"github.com/Dynatrace/dynatrace-operator/src/dtclient"
@@ -25,7 +26,7 @@ func createDefaultReconciler(t *testing.T) *ApiMonitoringReconciler {
 }
 
 func createReconciler(t *testing.T, uid string, monitoredEntities []dtclient.MonitoredEntity, getSettingsResponse dtclient.GetSettingsResponse, objectID string) *ApiMonitoringReconciler {
-	mockClient := &dtclient.MockDynatraceClient{}
+	mockClient := &mocks.Client{}
 	mockClient.On("GetMonitoredEntitiesForKubeSystemUUID", mock.AnythingOfType("string")).
 		Return(monitoredEntities, nil)
 	mockClient.On("GetSettingsForMonitoredEntities", monitoredEntities).
@@ -41,7 +42,7 @@ func createReconciler(t *testing.T, uid string, monitoredEntities []dtclient.Mon
 }
 
 func createReconcilerWithError(t *testing.T, monitoredEntitiesError error, getSettingsResponseError error, createSettingsResponseError error) *ApiMonitoringReconciler {
-	mockClient := &dtclient.MockDynatraceClient{}
+	mockClient := &mocks.Client{}
 	mockClient.On("GetMonitoredEntitiesForKubeSystemUUID", mock.AnythingOfType("string")).
 		Return([]dtclient.MonitoredEntity{}, monitoredEntitiesError)
 	mockClient.On("GetSettingsForMonitoredEntities", []dtclient.MonitoredEntity{}).

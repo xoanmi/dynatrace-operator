@@ -1,11 +1,11 @@
 package server
 
 import (
+	"github.com/Dynatrace/dynatrace-operator/src/cmd/manager/mocks"
 	"io/fs"
 	"testing"
 
 	"github.com/Dynatrace/dynatrace-operator/src/cmd/config"
-	cmdManager "github.com/Dynatrace/dynatrace-operator/src/cmd/manager"
 	dtcsi "github.com/Dynatrace/dynatrace-operator/src/controllers/csi"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
@@ -31,7 +31,7 @@ func TestCsiCommandBuilder(t *testing.T) {
 		assert.Equal(t, expectedProvider, builder.configProvider)
 	})
 	t.Run("set manager provider", func(t *testing.T) {
-		expectedProvider := &cmdManager.MockProvider{}
+		expectedProvider := &mocks.Provider{}
 		builder := NewCsiServerCommandBuilder().setManagerProvider(expectedProvider)
 
 		assert.Equal(t, expectedProvider, builder.managerProvider)

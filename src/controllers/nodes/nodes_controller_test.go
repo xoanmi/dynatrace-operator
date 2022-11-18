@@ -2,6 +2,7 @@ package nodes
 
 import (
 	"context"
+	"github.com/Dynatrace/dynatrace-operator/src/dtclient/mocks"
 	"testing"
 	"time"
 
@@ -33,7 +34,7 @@ func TestReconcile(t *testing.T) {
 	t.Run("Create cache", func(t *testing.T) {
 		fakeClient := createDefaultFakeClient()
 
-		dtClient := &dtclient.MockDynatraceClient{}
+		dtClient := &mocks.Client{}
 		defer mock.AssertExpectationsForObjects(t, dtClient)
 
 		ctrl := createDefaultReconciler(fakeClient, dtClient)
@@ -141,7 +142,7 @@ func TestReconcile(t *testing.T) {
 	t.Run("Server error when removing node", func(t *testing.T) {
 		fakeClient := createDefaultFakeClient()
 
-		dtClient := &dtclient.MockDynatraceClient{}
+		dtClient := &mocks.Client{}
 		dtClient.On("GetEntityIDForIP", mock.Anything).Return("", ErrNotFound)
 
 		ctrl := createDefaultReconciler(fakeClient, dtClient)
@@ -186,7 +187,7 @@ func (builder mockDynatraceClientBuilder) BuildWithTokenVerification(*dynatracev
 	return builder.dynatraceClient, nil
 }
 
-func createDefaultReconciler(fakeClient client.Client, dtClient *dtclient.MockDynatraceClient) *NodesController {
+func createDefaultReconciler(fakeClient client.Client, dtClient *mocks.Client) *NodesController {
 	return &NodesController{
 		client:    fakeClient,
 		apiReader: fakeClient,
@@ -199,8 +200,8 @@ func createDefaultReconciler(fakeClient client.Client, dtClient *dtclient.MockDy
 	}
 }
 
-func createDTMockClient(ip, host string) *dtclient.MockDynatraceClient {
-	dtClient := &dtclient.MockDynatraceClient{}
+func createDTMockClient(ip, host string) *mocks.Client {
+	dtClient := &mocks.Client{}
 	dtClient.On("GetEntityIDForIP", ip).Return(host, nil)
 	dtClient.On("SendEvent", mock.MatchedBy(func(e *dtclient.EventData) bool {
 		return e.EventType == "MARKED_FOR_TERMINATION"

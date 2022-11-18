@@ -2,6 +2,7 @@ package csiprovisioner
 
 import (
 	"encoding/json"
+	"github.com/Dynatrace/dynatrace-operator/src/dtclient/mocks"
 	"os"
 	"testing"
 
@@ -56,7 +57,7 @@ func TestGetProcessModuleConfig(t *testing.T) {
 	t.Run(`no cache + no revision (dry run)`, func(t *testing.T) {
 		var defaultHash string
 		memFs := afero.NewMemMapFs()
-		mockClient := &dtclient.MockDynatraceClient{}
+		mockClient := &mocks.Client{}
 		mockClient.On("GetProcessModuleConfig", uint(0)).
 			Return(&testProcessModuleConfig, nil)
 		provisioner := &OneAgentProvisioner{
@@ -73,7 +74,7 @@ func TestGetProcessModuleConfig(t *testing.T) {
 		memFs := afero.NewMemMapFs()
 		content, _ := json.Marshal(testProcessModuleConfigCache)
 		prepTestFsCache(memFs, content)
-		mockClient := &dtclient.MockDynatraceClient{}
+		mockClient := &mocks.Client{}
 		mockClient.On("GetProcessModuleConfig", testProcessModuleConfigCache.Revision).
 			Return(emptyResponse, nil)
 		provisioner := &OneAgentProvisioner{
@@ -90,7 +91,7 @@ func TestGetProcessModuleConfig(t *testing.T) {
 		memFs := afero.NewMemMapFs()
 		content, _ := json.Marshal(testProcessModuleConfigCache)
 		prepTestFsCache(memFs, content)
-		mockClient := &dtclient.MockDynatraceClient{}
+		mockClient := &mocks.Client{}
 		mockClient.On("GetProcessModuleConfig", testProcessModuleConfigCache.Revision).
 			Return(&testProcessModuleConfig, nil)
 		provisioner := &OneAgentProvisioner{

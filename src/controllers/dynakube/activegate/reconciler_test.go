@@ -2,6 +2,7 @@ package activegate
 
 import (
 	"context"
+	"github.com/Dynatrace/dynatrace-operator/src/dtclient/mocks"
 	"testing"
 
 	dynatracev1beta1 "github.com/Dynatrace/dynatrace-operator/src/api/v1beta1"
@@ -33,7 +34,7 @@ var (
 )
 
 func TestReconciler_Reconcile(t *testing.T) {
-	dtc := &dtclient.MockDynatraceClient{}
+	dtc := &mocks.Client{}
 	dtc.On("GetActiveGateAuthToken", testName).Return(&dtclient.ActiveGateAuthTokenInfo{}, nil)
 
 	t.Run(`Create works with minimal setup`, func(t *testing.T) {
@@ -95,3 +96,97 @@ func TestReconciler_Reconcile(t *testing.T) {
 		assert.True(t, errors.IsNotFound(err))
 	})
 }
+<<<<<<< Updated upstream
+=======
+
+func TestServiceCreation(t *testing.T) {
+	dynatraceClient := &mocks.Client{}
+	dynatraceClient.On("GetActiveGateAuthToken", testName).Return(&dtclient.ActiveGateAuthTokenInfo{}, nil)
+	dynakube := &dynatracev1beta1.DynaKube{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: testNamespace,
+			Name:      testName,
+		},
+		Spec: dynatracev1beta1.DynaKubeSpec{
+			ActiveGate: dynatracev1beta1.ActiveGateSpec{},
+		},
+	}
+	t.Run("service exposes correct ports for single capabilities", func(t *testing.T) {
+		fakeClient := fake.NewClient(testKubeSystemNamespace)
+		reconciler := NewReconciler(context.TODO(), fakeClient, fakeClient, scheme.Scheme, dynakube, dynatraceClient)
+
+		expectedCapabilityPorts := map[dynatracev1beta1.CapabilityDisplayName][]string{
+			dynatracev1beta1.RoutingCapability.DisplayName: {
+				consts.HttpsServicePortName,
+				consts.HttpServicePortName,
+			},
+			dynatracev1beta1.MetricsIngestCapability.DisplayName: {
+				consts.HttpsServicePortName,
+				consts.HttpServicePortName,
+			},
+			dynatracev1beta1.DynatraceApiCapability.DisplayName: {
+				consts.HttpsServicePortName,
+				consts.HttpServicePortName,
+			},
+			dynatracev1beta1.StatsdIngestCapability.DisplayName: {
+				consts.StatsdIngestPortName,
+			},
+			dynatracev1beta1.KubeMonCapability.DisplayName: {},
+		}
+
+		for capability, expectedPorts := range expectedCapabilityPorts {
+			dynakube.Spec.ActiveGate.Capabilities = []dynatracev1beta1.CapabilityDisplayName{
+				capability,
+			}
+
+			err := reconciler.Reconcile()
+			require.NoError(t, err)
+
+			activegateService := getTestActiveGateService(t, fakeClient)
+			assertContainsAllPorts(t, expectedPorts, activegateService.Spec.Ports)
+		}
+	})
+
+	t.Run("service exposes correct ports for multiple capabilities", func(t *testing.T) {
+		fakeClient := fake.NewClient(testKubeSystemNamespace)
+		reconciler := NewReconciler(context.TODO(), fakeClient, fakeClient, scheme.Scheme, dynakube, dynatraceClient)
+
+		dynakube.Spec.ActiveGate.Capabilities = []dynatracev1beta1.CapabilityDisplayName{
+			dynatracev1beta1.RoutingCapability.DisplayName,
+			dynatracev1beta1.StatsdIngestCapability.DisplayName,
+		}
+		expectedPorts := []string{
+			consts.HttpsServicePortName,
+			consts.HttpServicePortName,
+			consts.StatsdIngestPortName,
+		}
+
+		err := reconciler.Reconcile()
+		require.NoError(t, err)
+
+		activegateService := getTestActiveGateService(t, fakeClient)
+		assertContainsAllPorts(t, expectedPorts, activegateService.Spec.Ports)
+	})
+}
+
+func assertContainsAllPorts(t *testing.T, expectedPorts []string, servicePorts []corev1.ServicePort) {
+	actualPorts := make([]string, 0, len(servicePorts))
+
+	for _, servicePort := range servicePorts {
+		actualPorts = append(actualPorts, servicePort.Name)
+	}
+
+	for _, expectedPort := range expectedPorts {
+		assert.Contains(t, actualPorts, expectedPort)
+	}
+}
+
+func getTestActiveGateService(t *testing.T, fakeClient client.Client) corev1.Service {
+	var activegateService corev1.Service
+	err := fakeClient.Get(context.TODO(), client.ObjectKey{Name: testServiceName, Namespace: testNamespace}, &activegateService)
+
+	require.NoError(t, err)
+
+	return activegateService
+}
+>>>>>>> Stashed changes

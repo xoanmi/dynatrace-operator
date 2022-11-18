@@ -1,10 +1,10 @@
 package webhook
 
 import (
+	"github.com/Dynatrace/dynatrace-operator/src/cmd/manager/mocks"
 	"testing"
 
 	"github.com/Dynatrace/dynatrace-operator/src/cmd/config"
-	cmdManager "github.com/Dynatrace/dynatrace-operator/src/cmd/manager"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -28,7 +28,7 @@ func TestWebhookCommandBuilder(t *testing.T) {
 		assert.Equal(t, expectedProvider, builder.configProvider)
 	})
 	t.Run("set manager provider", func(t *testing.T) {
-		expectedProvider := &cmdManager.MockProvider{}
+		expectedProvider := &mocks.Provider{}
 		builder := NewWebhookCommandBuilder().SetManagerProvider(expectedProvider)
 
 		assert.Equal(t, expectedProvider, builder.managerProvider)

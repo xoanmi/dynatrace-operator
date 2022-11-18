@@ -2,6 +2,7 @@ package url
 
 import (
 	"fmt"
+	"github.com/Dynatrace/dynatrace-operator/src/dtclient/mocks"
 	"io"
 	"os"
 	"testing"
@@ -47,7 +48,7 @@ func TestInstallAgentFromUrl(t *testing.T) {
 	})
 	t.Run(`error when downloading latest agent`, func(t *testing.T) {
 		fs := afero.NewMemMapFs()
-		dtc := &dtclient.MockDynatraceClient{}
+		dtc := &mocks.Client{}
 		dtc.
 			On("GetAgent", dtclient.OsUnix, dtclient.InstallerTypePaaS, arch.FlavorMultidistro,
 				mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("[]string"), mock.AnythingOfType("*mem.File")).
@@ -71,7 +72,7 @@ func TestInstallAgentFromUrl(t *testing.T) {
 	t.Run(`error unzipping file`, func(t *testing.T) {
 		fs := afero.NewMemMapFs()
 
-		dtc := &dtclient.MockDynatraceClient{}
+		dtc := &mocks.Client{}
 		dtc.
 			On("GetAgent", dtclient.OsUnix, dtclient.InstallerTypePaaS, arch.FlavorMultidistro,
 				mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("[]string"), mock.AnythingOfType("*mem.File")).
@@ -101,7 +102,7 @@ func TestInstallAgentFromUrl(t *testing.T) {
 	})
 	t.Run(`downloading and unzipping agent via version`, func(t *testing.T) {
 		fs := afero.NewMemMapFs()
-		dtc := &dtclient.MockDynatraceClient{}
+		dtc := &mocks.Client{}
 		dtc.
 			On("GetAgent", dtclient.OsUnix, dtclient.InstallerTypePaaS, arch.FlavorMultidistro,
 				mock.AnythingOfType("string"), testVersion, mock.AnythingOfType("[]string"), mock.AnythingOfType("*mem.File")).
@@ -133,7 +134,7 @@ func TestInstallAgentFromUrl(t *testing.T) {
 	})
 	t.Run(`downloading and unzipping latest agent`, func(t *testing.T) {
 		fs := afero.NewMemMapFs()
-		dtc := &dtclient.MockDynatraceClient{}
+		dtc := &mocks.Client{}
 		dtc.
 			On("GetLatestAgent", dtclient.OsUnix, dtclient.InstallerTypePaaS, arch.FlavorMultidistro,
 				mock.AnythingOfType("string"), mock.AnythingOfType("[]string"), mock.AnythingOfType("*mem.File")).
@@ -165,7 +166,7 @@ func TestInstallAgentFromUrl(t *testing.T) {
 	})
 	t.Run(`downloading and unzipping agent via url`, func(t *testing.T) {
 		fs := afero.NewMemMapFs()
-		dtc := &dtclient.MockDynatraceClient{}
+		dtc := &mocks.Client{}
 		dtc.
 			On("GetAgentViaInstallerUrl", testUrl, mock.AnythingOfType("*mem.File")).
 			Run(func(args mock.Arguments) {

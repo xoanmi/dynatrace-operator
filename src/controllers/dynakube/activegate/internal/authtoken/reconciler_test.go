@@ -2,6 +2,7 @@ package authtoken
 
 import (
 	"context"
+	"github.com/Dynatrace/dynatrace-operator/src/dtclient/mocks"
 	"testing"
 	"time"
 
@@ -41,7 +42,7 @@ func newTestReconcilerWithInstance(client client.Client) *Reconciler {
 			APIURL: "https://testing.dev.dynatracelabs.com/api",
 		},
 	}
-	dtc := &dtclient.MockDynatraceClient{}
+	dtc := &mocks.Client{}
 	dtc.On("GetActiveGateAuthToken", mock.Anything).Return(testAgAuthTokenResponse, nil)
 
 	r := NewReconciler(client, client, scheme.Scheme, instance, dtc)

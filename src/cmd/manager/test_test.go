@@ -9,7 +9,7 @@ import (
 )
 
 func TestTestManager(t *testing.T) {
-	mgr := TestManager{}
+	mgr := ManagerStub{}
 
 	assert.NotNil(t, mgr.GetClient())
 	assert.NotNil(t, mgr.GetAPIReader())

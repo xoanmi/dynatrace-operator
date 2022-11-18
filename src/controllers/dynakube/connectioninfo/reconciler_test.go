@@ -2,6 +2,7 @@ package connectioninfo
 
 import (
 	"context"
+	"github.com/Dynatrace/dynatrace-operator/src/dtclient/mocks"
 	"testing"
 
 	dynatracev1beta1 "github.com/Dynatrace/dynatrace-operator/src/api/v1beta1"
@@ -36,7 +37,7 @@ func TestReconcile_ActivegateSecret(t *testing.T) {
 			Endpoints:   testTenantEndpoints,
 		},
 	}
-	dtc := &dtclient.MockDynatraceClient{}
+	dtc := &mocks.Client{}
 	dtc.On("GetActiveGateConnectionInfo").Return(tenantInfoResponse, nil)
 
 	t.Run(`create activegate secret`, func(t *testing.T) {
@@ -116,7 +117,7 @@ func TestReconcile_OneagentSecret(t *testing.T) {
 			Endpoints:   testTenantEndpoints,
 		},
 	}
-	dtc := &dtclient.MockDynatraceClient{}
+	dtc := &mocks.Client{}
 	dtc.On("GetOneAgentConnectionInfo").Return(connectionInfo, nil)
 
 	t.Run(`create oneagent secret`, func(t *testing.T) {

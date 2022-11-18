@@ -1,6 +1,7 @@
 package operator
 
 import (
+	"github.com/Dynatrace/dynatrace-operator/src/cmd/manager/mocks"
 	"testing"
 
 	mocks "github.com/Dynatrace/dynatrace-operator/mocks/cmd/manager"

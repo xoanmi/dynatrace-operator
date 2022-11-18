@@ -3,6 +3,7 @@ package csiprovisioner
 import (
 	"context"
 	"fmt"
+	"github.com/Dynatrace/dynatrace-operator/src/dtclient/mocks"
 	"testing"
 
 	dynatracev1beta1 "github.com/Dynatrace/dynatrace-operator/src/api/v1beta1"
@@ -297,7 +298,7 @@ func testUpdateOneagent(t *testing.T, alreadyInstalled bool) {
 }
 
 func createTestAgentUrlUpdater(t *testing.T, dk *dynatracev1beta1.DynaKube) *agentUpdater {
-	mockedClient := dtclient.MockDynatraceClient{}
+	mockedClient := mocks.Client{}
 	path := metadata.PathResolver{RootDir: "test"}
 	fs := afero.NewMemMapFs()
 	rec := record.NewFakeRecorder(10)

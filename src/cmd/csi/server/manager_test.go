@@ -1,9 +1,13 @@
 package server
 
 import (
+	"github.com/Dynatrace/dynatrace-operator/src/cmd/manager/mocks"
 	"testing"
 
+<<<<<<< Updated upstream
 	mocks "github.com/Dynatrace/dynatrace-operator/mocks/cmd/manager"
+=======
+>>>>>>> Stashed changes
 	"github.com/Dynatrace/dynatrace-operator/src/scheme"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"

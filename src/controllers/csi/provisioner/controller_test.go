@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"github.com/Dynatrace/dynatrace-operator/src/dtclient/mocks"
 	"io"
 	"os"
 	"path/filepath"
@@ -283,7 +284,7 @@ func TestOneAgentProvisioner_Reconcile(t *testing.T) {
 		errorfs := &mkDirAllErrorFs{
 			Fs: afero.NewMemMapFs(),
 		}
-		mockClient := &dtclient.MockDynatraceClient{}
+		mockClient := &mocks.Client{}
 		mockClient.On("GetOneAgentConnectionInfo").Return(dtclient.OneAgentConnectionInfo{
 			ConnectionInfo: dtclient.ConnectionInfo{
 				TenantUUID: tenantUUID,
@@ -333,7 +334,7 @@ func TestOneAgentProvisioner_Reconcile(t *testing.T) {
 		gc := &CSIGarbageCollectorMock{}
 		gc.On("Reconcile").Return(reconcile.Result{}, nil)
 		memFs := afero.NewMemMapFs()
-		mockClient := &dtclient.MockDynatraceClient{}
+		mockClient := &mocks.Client{}
 		mockClient.On("GetOneAgentConnectionInfo").Return(dtclient.OneAgentConnectionInfo{
 			ConnectionInfo: dtclient.ConnectionInfo{
 				TenantUUID: tenantUUID,
@@ -401,7 +402,7 @@ func TestOneAgentProvisioner_Reconcile(t *testing.T) {
 		gc := &CSIGarbageCollectorMock{}
 		gc.On("Create").Return(reconcile.Result{}, nil)
 		memFs := afero.NewMemMapFs()
-		mockClient := &dtclient.MockDynatraceClient{}
+		mockClient := &mocks.Client{}
 		mockClient.On("GetOneAgentConnectionInfo").Return(dtclient.OneAgentConnectionInfo{
 			ConnectionInfo: dtclient.ConnectionInfo{
 				TenantUUID: tenantUUID,
@@ -452,7 +453,7 @@ func TestOneAgentProvisioner_Reconcile(t *testing.T) {
 		err := memDB.InsertDynakube(ctx, metadata.NewDynakube(dkName, tenantUUID, agentVersion, "", 0))
 		require.NoError(t, err)
 
-		mockClient := &dtclient.MockDynatraceClient{}
+		mockClient := &mocks.Client{}
 		mockClient.On("GetOneAgentConnectionInfo").Return(dtclient.OneAgentConnectionInfo{
 			ConnectionInfo: dtclient.ConnectionInfo{
 				TenantUUID: tenantUUID,
