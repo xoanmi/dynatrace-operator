@@ -26,7 +26,7 @@ func TestNewDeploymentMetadata(t *testing.T) {
 
 func TestDeploymentMetadata_asArgs(t *testing.T) {
 	deploymentMetadata := newTestDeploymentMetadata(t)
-	labels := deploymentMetadata.AsArgs()
+	labels := deploymentMetadata.AsArgumentMap()
 
 	assert.Equal(t, []string{
 		`--set-deployment-metadata=orchestration_tech=Operator-` + testMetaData,

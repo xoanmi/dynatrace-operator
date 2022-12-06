@@ -49,7 +49,7 @@ type ClassicFullStack struct {
 }
 
 type builderInfo struct {
-	instance       *dynatracev1beta1.DynaKube
+	dynakube       *dynatracev1beta1.DynaKube
 	hostInjectSpec *dynatracev1beta1.HostInjectSpec
 	clusterId      string
 	deploymentType string
@@ -62,7 +62,7 @@ type Builder interface {
 func NewHostMonitoring(instance *dynatracev1beta1.DynaKube, clusterId string) Builder {
 	return &HostMonitoring{
 		builderInfo{
-			instance:       instance,
+			dynakube:       instance,
 			hostInjectSpec: instance.Spec.OneAgent.HostMonitoring,
 			clusterId:      clusterId,
 			deploymentType: DeploymentTypeHostMonitoring,
@@ -73,7 +73,7 @@ func NewHostMonitoring(instance *dynatracev1beta1.DynaKube, clusterId string) Bu
 func NewCloudNativeFullStack(instance *dynatracev1beta1.DynaKube, clusterId string) Builder {
 	return &HostMonitoring{
 		builderInfo{
-			instance:       instance,
+			dynakube:       instance,
 			hostInjectSpec: &instance.Spec.OneAgent.CloudNativeFullStack.HostInjectSpec,
 			clusterId:      clusterId,
 			deploymentType: DeploymentTypeCloudNative,
@@ -84,7 +84,7 @@ func NewCloudNativeFullStack(instance *dynatracev1beta1.DynaKube, clusterId stri
 func NewClassicFullStack(instance *dynatracev1beta1.DynaKube, clusterId string) Builder {
 	return &ClassicFullStack{
 		builderInfo{
-			instance:       instance,
+			dynakube:       instance,
 			hostInjectSpec: instance.Spec.OneAgent.ClassicFullStack,
 			clusterId:      clusterId,
 			deploymentType: DeploymentTypeFullStack,
@@ -98,7 +98,7 @@ func (dsInfo *HostMonitoring) BuildDaemonSet() (*appsv1.DaemonSet, error) {
 		return nil, err
 	}
 
-	result.Name = dsInfo.instance.OneAgentDaemonsetName()
+	result.Name = dsInfo.dynakube.OneAgentDaemonsetName()
 
 	if len(result.Spec.Template.Spec.Containers) > 0 {
 		appendHostIdArgument(result, inframonHostIdSource)
@@ -114,7 +114,7 @@ func (dsInfo *ClassicFullStack) BuildDaemonSet() (*appsv1.DaemonSet, error) {
 		return nil, err
 	}
 
-	result.Name = dsInfo.instance.OneAgentDaemonsetName()
+	result.Name = dsInfo.dynakube.OneAgentDaemonsetName()
 
 	if len(result.Spec.Template.Spec.Containers) > 0 {
 		appendHostIdArgument(result, classicHostIdSource)
@@ -128,7 +128,7 @@ func appendHostIdArgument(result *appsv1.DaemonSet, source string) {
 }
 
 func (dsInfo *builderInfo) BuildDaemonSet() (*appsv1.DaemonSet, error) {
-	instance := dsInfo.instance
+	instance := dsInfo.dynakube
 	podSpec := dsInfo.podSpec()
 
 	versionLabelValue := instance.Status.OneAgent.Version
@@ -228,7 +228,7 @@ func (dsInfo *builderInfo) podSpec() corev1.PodSpec {
 }
 
 func (dsInfo *builderInfo) serviceAccountName() string {
-	if dsInfo.instance != nil && dsInfo.instance.NeedsOneAgentPrivileged() {
+	if dsInfo.dynakube != nil && dsInfo.dynakube.NeedsOneAgentPrivileged() {
 		return privilegedServiceAccountName
 	}
 
@@ -236,10 +236,10 @@ func (dsInfo *builderInfo) serviceAccountName() string {
 }
 
 func (dsInfo *builderInfo) immutableOneAgentImage() string {
-	if dsInfo.instance == nil {
+	if dsInfo.dynakube == nil {
 		return ""
 	}
-	return dsInfo.instance.OneAgentImage()
+	return dsInfo.dynakube.OneAgentImage()
 }
 
 func (dsInfo *builderInfo) tolerations() []corev1.Toleration {
@@ -294,30 +294,30 @@ func (dsInfo *builderInfo) dnsPolicy() corev1.DNSPolicy {
 }
 
 func (dsInfo *builderInfo) volumeMounts() []corev1.VolumeMount {
-	return prepareVolumeMounts(dsInfo.instance)
+	return prepareVolumeMounts(dsInfo.dynakube)
 }
 
 func (dsInfo *builderInfo) volumes() []corev1.Volume {
-	return prepareVolumes(dsInfo.instance)
+	return prepareVolumes(dsInfo.dynakube)
 }
 
 func (dsInfo *builderInfo) imagePullSecrets() []corev1.LocalObjectReference {
-	if dsInfo.instance == nil {
+	if dsInfo.dynakube == nil {
 		return []corev1.LocalObjectReference{}
 	}
 
-	return []corev1.LocalObjectReference{{Name: dsInfo.instance.PullSecret()}}
+	return []corev1.LocalObjectReference{{Name: dsInfo.dynakube.PullSecret()}}
 }
 
 func (dsInfo *builderInfo) securityContext() *corev1.SecurityContext {
 	var securityContext corev1.SecurityContext
-	if dsInfo.instance != nil && dsInfo.instance.NeedsReadOnlyOneAgents() {
+	if dsInfo.dynakube != nil && dsInfo.dynakube.NeedsReadOnlyOneAgents() {
 		securityContext.RunAsNonRoot = address.Of(true)
 		securityContext.RunAsUser = address.Of(int64(1000))
 		securityContext.RunAsGroup = address.Of(int64(1000))
 	}
 
-	if dsInfo.instance != nil && dsInfo.instance.NeedsOneAgentPrivileged() {
+	if dsInfo.dynakube != nil && dsInfo.dynakube.NeedsOneAgentPrivileged() {
 		securityContext.Privileged = address.Of(true)
 	} else {
 		securityContext.Capabilities = defaultSecurityContextCapabilities()

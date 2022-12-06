@@ -3,7 +3,6 @@ package daemonset
 import (
 	"fmt"
 
-	"github.com/Dynatrace/dynatrace-operator/src/deploymentmetadata"
 	"github.com/Dynatrace/dynatrace-operator/src/version"
 )
 
@@ -21,21 +20,15 @@ func (dsInfo *builderInfo) arguments() []string {
 	args = dsInfo.appendProxyArg(args)
 	args = dsInfo.appendNetworkZoneArg(args)
 	args = appendOperatorVersionArg(args)
-	args = dsInfo.appendMetadataArgs(args)
 	args = dsInfo.appendImmutableImageArgs(args)
 
 	return args
 }
 
 func (dsInfo *builderInfo) appendImmutableImageArgs(args []string) []string {
-	args = append(args, fmt.Sprintf("--set-tenant=%s", dsInfo.instance.Status.ConnectionInfo.TenantUUID))
-	args = append(args, fmt.Sprintf("--set-server={%s}", dsInfo.instance.Status.ConnectionInfo.FormattedCommunicationEndpoints))
+	args = append(args, fmt.Sprintf("--set-tenant=%s", dsInfo.dynakube.Status.ConnectionInfo.TenantUUID))
+	args = append(args, fmt.Sprintf("--set-server={%s}", dsInfo.dynakube.Status.ConnectionInfo.FormattedCommunicationEndpoints))
 	return args
-}
-
-func (dsInfo *builderInfo) appendMetadataArgs(args []string) []string {
-	metadata := deploymentmetadata.NewDeploymentMetadata(dsInfo.clusterId, dsInfo.deploymentType)
-	return append(args, metadata.AsArgs()...)
 }
 
 func (dsInfo *builderInfo) appendHostInjectArgs(args []string) []string {
@@ -51,19 +44,19 @@ func appendOperatorVersionArg(args []string) []string {
 }
 
 func (dsInfo *builderInfo) appendNetworkZoneArg(args []string) []string {
-	if dsInfo.instance != nil && dsInfo.instance.Spec.NetworkZone != "" {
-		return append(args, fmt.Sprintf("--set-network-zone=%s", dsInfo.instance.Spec.NetworkZone))
+	if dsInfo.dynakube != nil && dsInfo.dynakube.Spec.NetworkZone != "" {
+		return append(args, fmt.Sprintf("--set-network-zone=%s", dsInfo.dynakube.Spec.NetworkZone))
 	}
 	return args
 }
 
 func (dsInfo *builderInfo) appendProxyArg(args []string) []string {
-	if dsInfo.instance != nil && dsInfo.instance.NeedsOneAgentProxy() {
+	if dsInfo.dynakube != nil && dsInfo.dynakube.NeedsOneAgentProxy() {
 		return append(args, "--set-proxy=$(https_proxy)")
 	}
 	return args
 }
 
 func (dsInfo *builderInfo) hasProxy() bool {
-	return dsInfo.instance != nil && dsInfo.instance.Spec.Proxy != nil && (dsInfo.instance.Spec.Proxy.ValueFrom != "" || dsInfo.instance.Spec.Proxy.Value != "")
+	return dsInfo.dynakube != nil && dsInfo.dynakube.Spec.Proxy != nil && (dsInfo.dynakube.Spec.Proxy.ValueFrom != "" || dsInfo.dynakube.Spec.Proxy.Value != "")
 }

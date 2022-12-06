@@ -114,7 +114,7 @@ func TestPrepareVolumes(t *testing.T) {
 		}
 		dsInfo := HostMonitoring{
 			builderInfo{
-				instance:       instance,
+				dynakube:       instance,
 				hostInjectSpec: instance.Spec.OneAgent.HostMonitoring,
 				clusterId:      "",
 			},
@@ -242,7 +242,7 @@ func TestPrepareVolumeMounts(t *testing.T) {
 		}
 		dsInfo := HostMonitoring{
 			builderInfo{
-				instance:       instance,
+				dynakube:       instance,
 				hostInjectSpec: instance.Spec.OneAgent.HostMonitoring,
 				clusterId:      "",
 			},

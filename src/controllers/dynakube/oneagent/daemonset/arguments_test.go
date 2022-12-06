@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	dynatracev1beta1 "github.com/Dynatrace/dynatrace-operator/src/api/v1beta1"
-	"github.com/Dynatrace/dynatrace-operator/src/deploymentmetadata"
 	"github.com/Dynatrace/dynatrace-operator/src/version"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -29,10 +28,10 @@ const (
 func TestArguments(t *testing.T) {
 	t.Run("returns default arguments if hostInjection is nil", func(t *testing.T) {
 		builder := builderInfo{
-			instance: &dynatracev1beta1.DynaKube{},
+			dynakube: &dynatracev1beta1.DynaKube{},
 		}
 		arguments := builder.arguments()
-		expectedDefaultArguments := builder.appendImmutableImageArgs(builder.appendMetadataArgs(appendOperatorVersionArg([]string{})))
+		expectedDefaultArguments := builder.appendImmutableImageArgs(appendOperatorVersionArg([]string{}))
 
 		assert.Equal(t, expectedDefaultArguments, arguments)
 	})
@@ -49,7 +48,7 @@ func TestArguments(t *testing.T) {
 		}
 		dsInfo := ClassicFullStack{
 			builderInfo{
-				instance:       &instance,
+				dynakube:       &instance,
 				hostInjectSpec: instance.Spec.OneAgent.ClassicFullStack,
 				clusterId:      testClusterID,
 			},
@@ -82,11 +81,10 @@ func TestPodSpec_Arguments(t *testing.T) {
 			},
 		},
 	}
-	metadata := deploymentmetadata.NewDeploymentMetadata(testClusterID, DeploymentTypeFullStack)
 	hostInjectSpecs := instance.Spec.OneAgent.ClassicFullStack
 	dsInfo := ClassicFullStack{
 		builderInfo{
-			instance:       instance,
+			dynakube:       instance,
 			hostInjectSpec: hostInjectSpecs,
 			clusterId:      testClusterID,
 			deploymentType: DeploymentTypeFullStack,
@@ -103,12 +101,6 @@ func TestPodSpec_Arguments(t *testing.T) {
 	}
 	assert.Contains(t, podSpecs.Containers[0].Args, "--set-host-property=OperatorVersion="+version.Version)
 
-	// hardcoded, because a change of consts should not be done
-	assert.Contains(t, podSpecs.Containers[0].Args, "--set-deployment-metadata=orchestration_tech=Operator-classic_fullstack")
-	metadataArgs := metadata.AsArgs()
-	for _, metadataArg := range metadataArgs {
-		assert.Contains(t, podSpecs.Containers[0].Args, metadataArg)
-	}
 	t.Run(`has proxy arg`, func(t *testing.T) {
 		instance.Spec.Proxy = &dynatracev1beta1.DynaKubeProxy{Value: testValue}
 		podSpecs = dsInfo.podSpec()
@@ -145,7 +137,7 @@ func TestPodSpec_Arguments(t *testing.T) {
 
 		dsInfo := HostMonitoring{
 			builderInfo{
-				instance:       instance,
+				dynakube:       instance,
 				hostInjectSpec: hostInjectSpecs,
 				clusterId:      testClusterID,
 			},
@@ -163,7 +155,7 @@ func TestPodSpec_Arguments(t *testing.T) {
 		hostInjectSpecs = &instance.Spec.OneAgent.CloudNativeFullStack.HostInjectSpec
 		dsInfo := HostMonitoring{
 			builderInfo{
-				instance:       instance,
+				dynakube:       instance,
 				hostInjectSpec: hostInjectSpecs,
 				clusterId:      testClusterID,
 				deploymentType: DeploymentTypeCloudNative,
@@ -182,7 +174,7 @@ func TestPodSpec_Arguments(t *testing.T) {
 		hostInjectSpecs = &instance.Spec.OneAgent.CloudNativeFullStack.HostInjectSpec
 		dsInfo := HostMonitoring{
 			builderInfo{
-				instance:       instance,
+				dynakube:       instance,
 				hostInjectSpec: hostInjectSpecs,
 				clusterId:      testClusterID,
 				deploymentType: DeploymentTypeHostMonitoring,

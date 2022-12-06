@@ -32,7 +32,7 @@ func (dsInfo *builderInfo) environmentVariables() []corev1.EnvVar {
 		envVarMap = dsInfo.setDefaultProxy(envVarMap)
 	}
 
-	if dsInfo.instance != nil && dsInfo.instance.NeedsReadOnlyOneAgents() {
+	if dsInfo.dynakube != nil && dsInfo.dynakube.NeedsReadOnlyOneAgents() {
 		envVarMap = setDefaultValue(envVarMap, oneagentReadOnlyMode, "true")
 	}
 
@@ -66,15 +66,15 @@ func mapToArray(envVarMap map[string]corev1.EnvVar) []corev1.EnvVar {
 }
 
 func (dsInfo *builderInfo) setDefaultProxy(envVarMap map[string]corev1.EnvVar) map[string]corev1.EnvVar {
-	if dsInfo.instance.Spec.Proxy.ValueFrom != "" {
+	if dsInfo.dynakube.Spec.Proxy.ValueFrom != "" {
 		setDefaultValueSource(envVarMap, proxy, &corev1.EnvVarSource{
 			SecretKeyRef: &corev1.SecretKeySelector{
-				LocalObjectReference: corev1.LocalObjectReference{Name: dsInfo.instance.Spec.Proxy.ValueFrom},
+				LocalObjectReference: corev1.LocalObjectReference{Name: dsInfo.dynakube.Spec.Proxy.ValueFrom},
 				Key:                  "proxy",
 			},
 		})
 	} else {
-		setDefaultValue(envVarMap, proxy, dsInfo.instance.Spec.Proxy.Value)
+		setDefaultValue(envVarMap, proxy, dsInfo.dynakube.Spec.Proxy.Value)
 	}
 	return envVarMap
 }
