@@ -8,11 +8,9 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"strings"
 	"testing"
 
 	"github.com/Dynatrace/dynatrace-operator/src/cmd/support_archive"
-	"github.com/Dynatrace/dynatrace-operator/src/functional"
 	"github.com/Dynatrace/dynatrace-operator/src/webhook"
 	"github.com/Dynatrace/dynatrace-operator/test/csi"
 	"github.com/Dynatrace/dynatrace-operator/test/dynakube"
@@ -28,7 +26,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/exp/slices"
-	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/e2e-framework/klient/conf"
 	"sigs.k8s.io/e2e-framework/pkg/env"
 	"sigs.k8s.io/e2e-framework/pkg/envconf"
@@ -102,21 +99,16 @@ func testSupportArchiveCommand() features.Func {
 func executeSupportArchiveCommand(ctx context.Context, t *testing.T, environmentConfig *envconf.Config, cmdLineArguments string) *pod.ExecutionResult {
 	resources := environmentConfig.Client().Resources()
 
-	pods := pod.List(t, ctx, resources, operator.Namespace)
-	require.NotNil(t, pods.Items)
-
-	operatorPods := functional.Filter(pods.Items, func(podItem corev1.Pod) bool {
-		return strings.Contains(podItem.Name, "dynatrace-operator")
-	})
-
+	operatorPods := pod.ListFilteredByName(t, ctx, resources, operator.Namespace, "dynatrace-operator")
+	require.NotNil(t, operatorPods)
 	require.Len(t, operatorPods, 1)
 
-	executionQuery := pod.NewExecutionQuery(operatorPods[0],
+	executionResult, err := pod.NewExecutionQueryNg(
+		operatorPods[0],
 		"dynatrace-operator",
 		"/usr/local/bin/dynatrace-operator",
 		"support-archive",
-		cmdLineArguments)
-	executionResult, err := executionQuery.Execute(environmentConfig.Client().RESTConfig())
+		cmdLineArguments).ExecuteNg(ctx, environmentConfig.Client())
 	require.NoError(t, err)
 
 	return executionResult
