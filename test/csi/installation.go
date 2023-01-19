@@ -6,5 +6,5 @@ import (
 )
 
 func WaitForDaemonset() features.Func {
-	return daemonset.WaitFor("dynatrace-oneagent-csi-driver", "dynatrace")
+	return daemonset.WaitFor(Name, Namespace)
 }

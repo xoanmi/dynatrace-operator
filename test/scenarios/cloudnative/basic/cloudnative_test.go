@@ -3,6 +3,7 @@
 package cloudnative
 
 import (
+	"github.com/Dynatrace/dynatrace-operator/test/csi"
 	"testing"
 
 	"github.com/Dynatrace/dynatrace-operator/test/dynakube"
@@ -26,6 +27,7 @@ func TestMain(m *testing.M) {
 	testEnvironment.AfterEachTest(namespace.DeleteIfExists(sampleapps.Namespace))
 	testEnvironment.AfterEachTest(dynakube.DeleteIfExists(dynakube.NewBuilder().WithDefaultObjectMeta().Build()))
 	testEnvironment.AfterEachTest(oneagent.WaitForDaemonSetPodsDeletion())
+	testEnvironment.AfterEachTest(csi.WaitForFileCleanup())
 	testEnvironment.AfterEachTest(namespace.Delete(dynakube.Namespace))
 
 	testEnvironment.Run(m)
