@@ -7,6 +7,7 @@ import (
 
 	dynatracev1beta1 "github.com/Dynatrace/dynatrace-operator/src/api/v1beta1"
 	"github.com/Dynatrace/dynatrace-operator/src/controllers/dynakube/activegate/capability"
+	"github.com/Dynatrace/dynatrace-operator/src/controllers/dynakube/connectioninfo"
 	"github.com/Dynatrace/dynatrace-operator/src/controllers/dynakube/dynatraceclient"
 	"github.com/Dynatrace/dynatrace-operator/src/controllers/dynakube/token"
 	"github.com/Dynatrace/dynatrace-operator/src/dtclient"
@@ -417,6 +418,15 @@ func TestRemoveOneAgentDaemonset(t *testing.T) {
 					Namespace: testNamespace,
 				},
 			},
+			&corev1.ConfigMap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      instance.OneAgentConnectionInfoConfigMapName(),
+					Namespace: testNamespace,
+				},
+				Data: map[string]string{
+					connectioninfo.TenantUUIDName: testUUID,
+				},
+			},
 		)
 		mockDtcBuilder := &dynatraceclient.StubBuilder{
 			DynatraceClient: mockClient,
@@ -667,6 +677,15 @@ func createFakeClientAndReconciler(mockClient dtclient.Client, instance *dynatra
 				UID:  testUID,
 			},
 		},
+		&corev1.ConfigMap{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      instance.OneAgentConnectionInfoConfigMapName(),
+				Namespace: testNamespace,
+			},
+			Data: map[string]string{
+				connectioninfo.TenantUUIDName: testUUID,
+			},
+		},
 		generateStatefulSetForTesting(testName, testNamespace, "activegate", testUID),
 	)
 	mockDtcBuilder := &dynatraceclient.StubBuilder{
@@ -911,7 +930,7 @@ func TestReconcileIstio(t *testing.T) {
 		client:    fakeClient,
 		apiReader: fakeClient,
 	}
-	updated := controller.reconcileIstio(dynakube)
+	updated := controller.reconcileIstio(context.TODO(), dynakube)
 
 	assert.False(t, updated)
 

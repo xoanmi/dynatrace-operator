@@ -26,6 +26,7 @@ type InitGenerator struct {
 	namespace     string
 	canWatchNodes bool
 	dynakubeQuery kubeobjects.DynakubeQuery
+	tenantUUID    string
 }
 
 type nodeInfo struct {
@@ -46,6 +47,9 @@ func NewInitGenerator(client client.Client, apiReader client.Reader, namespace s
 // Used by the podInjection webhook in case the namespace lacks the init secret.
 func (g *InitGenerator) GenerateForNamespace(ctx context.Context, dk dynatracev1beta1.DynaKube, targetNs string) error {
 	log.Info("reconciling namespace init secret for", "namespace", targetNs)
+	if err := g.getTenantUUID(ctx, &dk); err != nil {
+		return err
+	}
 	g.canWatchNodes = false
 	data, err := g.generate(ctx, &dk)
 	if err != nil {
@@ -73,6 +77,9 @@ func (g *InitGenerator) GenerateForNamespace(ctx context.Context, dk dynatracev1
 // Used by the dynakube controller during reconcile.
 func (g *InitGenerator) GenerateForDynakube(ctx context.Context, dk *dynatracev1beta1.DynaKube) error {
 	log.Info("reconciling namespace init secret for", "dynakube", dk.Name)
+	if err := g.getTenantUUID(ctx, dk); err != nil {
+		return err
+	}
 	g.canWatchNodes = true
 	data, err := g.generate(ctx, dk)
 
@@ -104,6 +111,16 @@ func (g *InitGenerator) GenerateForDynakube(ctx context.Context, dk *dynatracev1
 	}
 
 	log.Info("done updating init secrets")
+	return nil
+}
+
+func (g *InitGenerator) getTenantUUID(ctx context.Context, dk *dynatracev1beta1.DynaKube) error {
+	connectionInfoQuery := kubeobjects.NewConfigMapQuery(ctx, g.client, g.apiReader, log)
+	var err error
+	g.tenantUUID, err = connectionInfoQuery.GetTenantUUID(dk.OneAgentConnectionInfoConfigMapName(), dk.Namespace)
+	if err != nil {
+		return errors.WithStack(err)
+	}
 	return nil
 }
 
@@ -161,7 +178,7 @@ func (g *InitGenerator) createSecretConfigForDynaKube(ctx context.Context, dynak
 		NetworkZone:         dynakube.Spec.NetworkZone,
 		TrustedCAs:          string(trustedCAs),
 		SkipCertCheck:       dynakube.Spec.SkipCertCheck,
-		TenantUUID:          dynakube.Status.ConnectionInfo.TenantUUID,
+		TenantUUID:          g.tenantUUID,
 		HasHost:             dynakube.CloudNativeFullstackMode(),
 		MonitoringNodes:     hostMonitoringNodes,
 		TlsCert:             tlsCert,
@@ -194,15 +211,15 @@ func (g *InitGenerator) getHostMonitoringNodes(dk *dynatracev1beta1.DynaKube) (m
 	if !dk.CloudNativeFullstackMode() {
 		return imNodes, nil
 	}
-	tenantUUID := dk.Status.ConnectionInfo.TenantUUID
+
 	if g.canWatchNodes {
 		var err error
-		imNodes, err = g.calculateImNodes(dk, tenantUUID)
+		imNodes, err = g.calculateImNodes(dk, g.tenantUUID)
 		if err != nil {
 			return nil, err
 		}
 	} else {
-		updateImNodes(dk, tenantUUID, imNodes)
+		updateImNodes(dk, g.tenantUUID, imNodes)
 	}
 	return imNodes, nil
 }
